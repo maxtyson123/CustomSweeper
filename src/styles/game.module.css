@@ -1,0 +1,65 @@
+.mainGame{
+    height: 400px;
+    width: 400px;
+    display: flex;
+    flex-wrap: wrap;
+    background: rebeccapurple;
+    border: 10px solid rebeccapurple;
+}
+
+.cell{
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    background: aqua;
+    border: 5px solid;
+    box-sizing: border-box;
+    border-color: #f5f3eb #bab8b5 #bab8b5 #f5f3eb;
+}
+
+.revealed{
+    background: #f5f3eb;
+    border-color: #bab8b5;
+}
+
+.flag{
+    background: #bab8b5;
+    border-color: #f5f3eb;
+}
+
+.bomb{
+    background: red;
+    border-color: #f5f3eb;
+}
+
+.one{
+    color: blue;
+}
+
+.two{
+    color: green;
+}
+
+.three{
+    color: red;
+}
+
+.four{
+    color: purple;
+}
+
+.five{
+    color: orange;
+}
+
+.six{
+    color: pink;
+}
+
+.seven{
+    color: brown;
+}
+
+.eight{
+    color: black;
+}
