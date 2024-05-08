@@ -1,35 +1,125 @@
+
+
 .mainGame{
-    height: 400px;
-    width: 400px;
     display: flex;
     flex-wrap: wrap;
-    background: rebeccapurple;
-    border: 10px solid rebeccapurple;
+    background: var(--secondary-color);
+}
+
+.topBarContainer{
+    display: grid;
+    grid-template-columns: 25px 1fr 25px;
+    grid-template-rows: 25px 1fr;
+}
+
+.topBar{
+    background: var(--secondary-color);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    color: var(--dark-color);
+    border: 15px solid var(--secondary-color);
+    box-sizing: border-box;
+
+}
+
+.topBar h1{
+    font-size: 1em;
+}
+
+.topBar div{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+}
+
+/* Make the borders next to the board */
+.gameContainer {
+    display: grid;
+    grid-template-columns: 25px 1fr 25px;
+    grid-template-rows: 25px 1fr 25px;
+}
+
+.gameOver{
+    display: grid;
+    grid-template-rows: 1fr 0.5fr 1fr;
+    align-items: center;
+    justify-items: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    top: -100%;
+    box-sizing: border-box;
+    color: white;
+}
+
+.gameOver h1{
+    font-size: 4em;
+    align-self: end;
+}
+
+.gameOver p{
+    font-size: 1.5em;
+    align-self: start;
+}
+
+.gameOver button{
+    font-size: 1.2em;
+    align-self: start;
+    padding: 10px 20px;
+    background: var(--dark-color);
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+    color: var(--secondary-color);
+}
+
+.loose{
+    background: rgba(255, 78, 78, 0.75);
+    border: 10px solid #ff4e4e;
+
+}
+
+.win{
+    background: rgba(68, 206, 68, 0.75);
+    border: 10px solid #4eff4e;
 }
 
 .cell{
-    width: 40px;
-    height: 40px;
     font-size: 20px;
-    background: aqua;
+    font-weight: bolder;
+    background: var(--primary-color);
     border: 5px solid;
     box-sizing: border-box;
-    border-color: #f5f3eb #bab8b5 #bab8b5 #f5f3eb;
+    border-color: var(--secondary-color) var(--dark-color) var(--dark-color) var(--secondary-color);
+    cursor: pointer;
+    user-select: none;
+    display: grid;
+    align-items: center;
+    justify-items: center;
 }
 
 .revealed{
-    background: #f5f3eb;
-    border-color: #bab8b5;
+    cursor: default;
+    animation: reveal 0.25s forwards;
 }
 
-.flag{
-    background: #bab8b5;
-    border-color: #f5f3eb;
+.flagged{
+    overflow: clip;
 }
 
-.bomb{
-    background: red;
+.flagged svg{
+    animation: placeFlag 0.25s forwards;
+}
+
+.mine{
+    background: #ff4e4e;
     border-color: #f5f3eb;
+    color: white;
+}
+
+.number{
+    cursor: pointer;
 }
 
 .one{
@@ -62,4 +152,103 @@
 
 .eight{
     color: black;
+}
+
+/* Shake board */
+.shake{
+    animation: shake 0.5s;
+}
+
+@keyframes shake {
+    0% { transform: translate(0, 0); }
+    10% { transform: translate(-10px, 0); }
+    20% { transform: translate(10px, 0); }
+    30% { transform: translate(-10px, 0); }
+    40% { transform: translate(10px, 0); }
+    50% { transform: translate(-10px, 0); }
+    60% { transform: translate(10px, 0); }
+    70% { transform: translate(-10px, 0); }
+    80% { transform: translate(10px, 0); }
+    90% { transform: translate(-10px, 0); }
+    100% { transform: translate(0, 0); }
+}
+
+
+@keyframes reveal {
+    0% {
+
+    }
+    100% {
+
+        background: var(--primary-color);
+        border: 2px solid #787878;
+
+    }
+}
+
+/* Place flag reveal from bottom to top */
+@keyframes placeFlag {
+    0% {
+        position: relative;
+        bottom: -25px;
+
+    }
+    100% {
+        bottom: 0;
+    }
+}
+
+/* Borders */
+.borderCornerTopLeft{
+    width: 25px;
+    height: 25px;
+    clip-path: polygon(100% 100%, 0% 100%, 100% 0);
+    background: linear-gradient(to top left, var(--dark-color) 0, var(--dark-color) 13.3%, var(--primary-color) 13.3%, var(--primary-color) 36.6%, var(--secondary-color) 36.6%, var(--secondary-color) 100%) no-repeat
+}
+
+.borderTop{
+    height: 25px;
+    background: linear-gradient(to top, var(--dark-color) 0, var(--dark-color) 23.3%, var(--primary-color) 23.3%, var(--primary-color) 76.6%, var(--secondary-color) 76.6%, var(--secondary-color) 100%) no-repeat;
+}
+
+.borderCornerTopRight{
+    width: 25px;
+    height: 25px;
+    clip-path: polygon(0 100%, 0 0, 100% 100%);
+    position: relative;
+    background: linear-gradient(to top right, var(--dark-color) 0, var(--dark-color) 13.3%, var(--primary-color) 13.3%, var(--primary-color) 36.6%, var(--secondary-color) 36.6%, var(--secondary-color) 100%) no-repeat;
+}
+
+
+.borderBottom{
+    height: 25px;
+    background: linear-gradient(to top,  var(--dark-color) 5%, var(--dark-color) 23.3%, var(--primary-color) 23.3%, var(--primary-color) 76.6%, var(--secondary-color) 76.6%, var(--secondary-color) 100%) no-repeat;
+    margin-bottom: 25px;
+}
+
+.borderLeft{
+    width: 25px;
+    background: linear-gradient(to left, var(--dark-color) 0, var(--dark-color) 23.3%, var(--primary-color) 23.3%, var(--primary-color) 76.6%, var(--secondary-color) 76.6%, var(--secondary-color) 100%) no-repeat;
+    display: inline-block;
+}
+
+.borderRight{
+    width: 25px;
+    background: linear-gradient(to left, var(--dark-color) 0, var(--dark-color) 23.3%, var(--primary-color) 23.3%, var(--primary-color) 76.6%, var(--secondary-color) 76.6%, var(--secondary-color) 100%) no-repeat;
+    margin-right: 25px;
+    display: inline-block;
+}
+
+.borderCornerBottomLeft{
+    width: 25px;
+    height: 25px;
+    clip-path: polygon(0 0, 100% 0, 100% 100%);
+    background: linear-gradient(to bottom left, var(--dark-color) 0, var(--dark-color) 13.3%, var(--primary-color) 13.3%, var(--primary-color) 36.6%, var(--secondary-color) 36.6%, var(--secondary-color) 100%) no-repeat;
+}
+
+.borderCornerBottomRight{
+    width: 25px;
+    height: 25px;
+    clip-path: polygon(0 0, 0% 100%, 100% 0);
+    background: linear-gradient(to bottom right, var(--secondary-color) 0, var(--secondary-color) 13.3%, var(--primary-color) 13.3%, var(--primary-color) 36.6%, var(--dark-color) 36.6%, var(--dark-color) 100%) no-repeat;
 }
