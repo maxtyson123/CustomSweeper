@@ -587,6 +587,7 @@ export function Game(props: GameProps) {
     }
 
     const gameCleanup = () => {
+
         // Set the final time
         setFinalTime(time);
     }

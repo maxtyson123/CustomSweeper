@@ -8,15 +8,14 @@ const App = () => {
       primaryColor: '#41af85',
       secondaryColor: '#72cca9',
       darkColor: '#2c775b',
-      mineImage: 'https://uxwing.com/wp-content/themes/uxwing/download/agriculture-farming-gardening/seed-sprouting-icon.svg',
-      flagImage: 'https://www.svgrepo.com/show/470302/water-can.svg'
+      mineImage: 'https://art.pixilart.com/thumb/sr28d51fc1bf8aws3.png',
+      flagImage: 'https://sunhaven.wiki.gg/images/5/55/Iron_Watering_Can.png'
   }
 
   const config : Config = {
         title: "Seed Sweeper",
         subtitle: "By Max Tyson",
         goalTitle: "Predict where the seeds are without digging them up!",
-
 
         theme: theme
   }

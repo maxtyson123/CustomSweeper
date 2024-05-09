@@ -50,6 +50,7 @@
     top: -100%;
     box-sizing: border-box;
     color: white;
+    animation: popIn 0.5s forwards;
 }
 
 .gameOver h1{
@@ -75,13 +76,13 @@
 }
 
 .loose{
-    background: rgba(255, 78, 78, 0.75);
+    background: rgba(255, 78, 78, 0.55);
     border: 10px solid #ff4e4e;
 
 }
 
 .win{
-    background: rgba(68, 206, 68, 0.75);
+    background: rgba(68, 206, 68, 0.55);
     border: 10px solid #4eff4e;
 }
 
@@ -200,6 +201,16 @@
     100% {
         bottom: 0;
     }
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0);
+    }
+    100% {
+        transform: scale(1);
+    }
+
 }
 
 /* Borders */
