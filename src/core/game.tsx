@@ -145,6 +145,7 @@ export function Game(props: GameProps) {
                 const cell = document.getElementById(`cell-${i}-${j}`);
                 if(cell){
                     cell.classList.remove(styles.revealed);
+                    cell.classList.remove(styles.preRevealed);
                     cell.classList.remove(styles.flagged);
                     cell.classList.remove(styles.mine);
                     cell.classList.remove(styles.one);
@@ -251,7 +252,7 @@ export function Game(props: GameProps) {
         let display = [...cellDisplay];
 
         // Update the display
-        display = handleCellReveal(x, y, display, true);
+        display = handleCellReveal(x, y, display, 0);
 
         // Set the display
         setCellDisplay(display);
@@ -365,7 +366,7 @@ export function Game(props: GameProps) {
         return display;
     }
 
-    const handleCellReveal = (x: number, y: number, display: string[], fromUser = false) : string[] => {
+    const handleCellReveal = (x: number, y: number, display: string[], iter = 1) : string[] => {
 
         // Handle the first click
         if(firstClickPos.length === 0){
@@ -380,8 +381,8 @@ export function Game(props: GameProps) {
         const cell = document.getElementById(`cell-${x}-${y}`);
 
         // Check if the cell is already revealed
-        if(cell?.classList.contains(styles.revealed)){
-            if(!fromUser) return display;
+        if(cell?.classList.contains(styles.revealed) || cell?.classList.contains(styles.preRevealed)){
+            if(iter != 0) return display;
             return tryQuickReveal(x, y, display);
         }
 
@@ -394,7 +395,11 @@ export function Game(props: GameProps) {
         }
 
         // Reveal the cell
-        cell?.classList.add(styles.revealed);
+        cell?.classList.add(styles.preRevealed);
+        setTimeout(() => {
+           cell?.classList.add(styles.revealed);
+           cell?.classList.remove(styles.preRevealed);
+        }, 10 * iter);
 
         // Check if the cell is a number
         if(cellNumbers[x][y] > 0){
@@ -446,15 +451,14 @@ export function Game(props: GameProps) {
         // Check if the cell is empty
         if(cellNumbers[x][y] === 0){
 
-            // Check the surrounding cells
-            for(let i = -1; i <= 1; i++){
-                for(let j = -1; j <= 1; j++){
+            for(let i = -1; i <= 1; i++) {
+                for (let j = -1; j <= 1; j++) {
 
                     // Check if the cell is within the board
-                    if(x + i >= 0 && x + i < boardWidth && y + j >= 0 && y + j < boardWidth){
+                    if (x + i >= 0 && x + i < boardWidth && y + j >= 0 && y + j < boardWidth) {
 
                         // Reveal the cell
-                        display = handleCellReveal(x + i, y + j, display);
+                        display = handleCellReveal(x + i, y + j, display, iter + 1);
                     }
                 }
             }
@@ -663,9 +667,9 @@ export function Game(props: GameProps) {
                                 }}
                             >
 
-                                {cell === "M" ? <Mine width={cellWidth / 2} height={cellWidth / 2}/>
-                                    : cell === "F" ? <Flag width={cellWidth / 1.5} height={cellWidth / 1.5}/>
-                                        : cell}
+                                {cell === "M" ? props.theme?.mineImage ? <img src={props.theme.mineImage} width={cellWidth / 1.5} height={cellWidth / 1.5}/> : <Mine width={cellWidth / 1.5} height={cellWidth / 1.5}/>
+                                : cell === "F" ? props.theme?.flagImage ? <img src={props.theme.flagImage} width={cellWidth / 1.5} height={cellWidth / 1.5}/> : <Flag width={cellWidth / 1.5} height={cellWidth / 1.5}/>
+                                : cell}
 
                             </div>
                         )

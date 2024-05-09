@@ -5,9 +5,11 @@ import {CustomSweeper, Config, Theme} from "../.";
 const App = () => {
 
   const theme : Theme = {
-      primaryColor: '#61ec53',
-      secondaryColor: '#6ebd6e',
-      darkColor: '#3f6b3f',
+      primaryColor: '#41af85',
+      secondaryColor: '#72cca9',
+      darkColor: '#2c775b',
+      mineImage: 'https://uxwing.com/wp-content/themes/uxwing/download/agriculture-farming-gardening/seed-sprouting-icon.svg',
+      flagImage: 'https://www.svgrepo.com/show/470302/water-can.svg'
   }
 
   const config : Config = {
@@ -15,6 +17,8 @@ const App = () => {
         subtitle: "By Max Tyson",
         goalTitle: "Predict where the seeds are without digging them up!",
 
+
+        theme: theme
   }
 
   return (

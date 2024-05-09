@@ -104,12 +104,16 @@
     animation: reveal 0.25s forwards;
 }
 
+.preRevealed{
+    color: var(--primary-color) !important;
+}
+
 .flagged{
     overflow: clip;
 }
 
-.flagged svg{
-    animation: placeFlag 0.25s forwards;
+.flagged svg, .flagged img{
+    animation: placeFlag 0.35s forwards;
 }
 
 .mine{
@@ -181,7 +185,7 @@
     100% {
 
         background: var(--primary-color);
-        border: 2px solid #787878;
+        border: 2px solid var(--dark-color);
 
     }
 }
