@@ -3,6 +3,7 @@ import styles from '../styles/game.module.css';
 import {useEffect, useRef} from "react";
 import {Flag, Mine} from "./svg";
 import {Theme} from "../index";
+import {Container} from "./ui";
 
 // TODO : Finidh Game
 //      - Add style customisation
@@ -14,9 +15,14 @@ import {Theme} from "../index";
 //      - Add AI
 //      - Add multiplayer
 
+//NOTE: For debuging puroposes the arrays will be y, x instead of x, y (the cell id is cell-x-y)
+
 interface GameProps {
     theme?: Theme;
-    mineCount?: number;
+    isMobile?: boolean;
+    mineCount: number;
+    rows: number;
+    cols: number;
 }
 
 export function Game(props: GameProps) {
@@ -30,15 +36,17 @@ export function Game(props: GameProps) {
     const [time, setTime] = React.useState<number>(0);
     const [finalTime, setFinalTime] = React.useState<number>(0);
     const [timeSpan, setTimeSpan] = React.useState<HTMLSpanElement | null>(null);
+    const pressTimeout = useRef<NodeJS.Timeout | null>(null);
 
     // Store the flags
     const [flags, setFlags] = React.useState<number>(0);
     const [flagsSpan, setFlagsSpan] = React.useState<HTMLSpanElement | null>(null);
 
     // Game State
-    const [boardWidth, setBoardWidth] = React.useState<number>(16);
+    const [boardWidth, setBoardWidth] = React.useState<number>(0);
+    const [boardHeight, setBoardHeight] = React.useState<number>(0);
     const [cellWidth, setCellWidth] = React.useState<number>(0);
-    const [mineCount, setMineCount] = React.useState<number>(props.mineCount ? props.mineCount : 40);
+    const [mineCount, setMineCount] = React.useState<number>(0);
     const [gameOver, setGameOver] = React.useState<number>(0);
     const [firstClickPos, setFirstClickPos] = React.useState<number[]>([]);
     const [initialSetupDone, setInitialSetupDone] = React.useState<boolean>(false);
@@ -46,21 +54,26 @@ export function Game(props: GameProps) {
     // Game Data
     const [minePlacement, setMinePlacement] = React.useState<boolean[][]>([]);
     const [cellNumbers, setCellNumbers] = React.useState<number[][]>([]);
-    const [cellDisplay, setCellDisplay] = React.useState<string[]>([]);
+    const [cellDisplay, setCellDisplay] = React.useState<string[][]>([]);
 
     // Run The game setup when the game div is ready
-    const setupStarted = useRef(0);
     useEffect(() => {
 
-        // Check if already setup
-        if(setupStarted.current == boardWidth) return;
+        // Prelim checks
+        if(mineCount === 0) return;
+        if(boardWidth === 0) return;
+        if(boardHeight === 0) return;
 
-        // Set up the game
-        setupStarted.current = boardWidth;
         setupGame();
+    }, [mineCount, boardWidth, boardHeight]);
 
-
-    }, [boardWidth]);
+    // Log the props
+    useEffect(() => {
+        // console.log("Game Props: ", props);
+        setMineCount(props.mineCount)
+        setBoardWidth(props.cols)
+        setBoardHeight(props.rows)
+    }, [props]);
 
     // Set the theme variables
     useEffect(() => {
@@ -72,7 +85,6 @@ export function Game(props: GameProps) {
     }, [props.theme]);
 
     const setupGame = () => {
-        console.log("Setting up game...");
 
         // Get the elements
         const gameElement = document.getElementById("game") as HTMLDivElement;
@@ -87,6 +99,7 @@ export function Game(props: GameProps) {
         setGameOver(0);
         setFlags(mineCount);
         setFirstClickPos([]);
+        clearTimeout(pressTimeout.current as NodeJS.Timeout);
 
         // Set the elements
         setGameDiv(gameElement);
@@ -120,20 +133,14 @@ export function Game(props: GameProps) {
 
     const createBoard = () => {
 
-
-        console.log("Creating board...");
-        console.log("Board Width: ", boardWidth);
-
         // Get the window size and make the board take up 1/4 of the screen
-        const windowWidth = window.innerWidth;
-        const windowHeight = window.innerHeight;
-        const cellWidth = Math.min(windowWidth, windowHeight) / 1.5 /  boardWidth;
+        const cellWidth = 40;
         setCellWidth(cellWidth);
 
 
         // Resize the board to be square
         gameDiv?.style.setProperty("width", `${cellWidth * boardWidth}px`);
-        gameDiv?.style.setProperty("height", `${cellWidth * boardWidth}px`);
+        gameDiv?.style.setProperty("height", `${cellWidth * boardHeight}px`);
 
         // Reset the board
         gameDiv?.classList.remove(styles.shake);
@@ -141,7 +148,7 @@ export function Game(props: GameProps) {
 
         // Reset all the cells
         for(let i = 0; i < boardWidth; i++){
-            for(let j = 0; j < boardWidth; j++){
+            for(let j = 0; j < boardHeight; j++){
                 const cell = document.getElementById(`cell-${i}-${j}`);
                 if(cell){
                     cell.classList.remove(styles.revealed);
@@ -162,20 +169,20 @@ export function Game(props: GameProps) {
 
 
         // Store which cells have mines
-        let mineCells : boolean[][] = Array(boardWidth).fill(false).map(() => Array(boardWidth).fill(false));
+        let mineCells : boolean[][] = Array(boardHeight).fill(false).map(() => Array(boardWidth).fill(false));
 
         // Place the mines
         for(let i = 0; i < mineCount; i++){
 
             // Get a random cell
             let x = Math.floor(Math.random() * boardWidth);
-            let y = Math.floor(Math.random() * boardWidth);
+            let y = Math.floor(Math.random() * boardHeight);
 
             // Check if the cell already has a mine
-            if(mineCells[x][y]){
+            if(mineCells[y][x]){
                 i--;
             }else{
-                mineCells[x][y] = true;
+                mineCells[y][x] = true;
             }
         }
 
@@ -192,26 +199,23 @@ export function Game(props: GameProps) {
 
     const setupNumbers = () => {
 
-        console.log("Setting up numbers...");
-
-        let numbers : number[][] = Array(boardWidth).fill(0).map(() => Array(boardWidth).fill(0));
+        let numbers : number[][] = Array(boardHeight).fill(0).map(() => Array(boardWidth).fill(0));
 
         // Loop through each cell
         for(let i = 0; i < boardWidth; i++){
-            for(let j = 0; j < boardWidth; j++){
+            for(let j = 0; j < boardHeight; j++){
 
                 // Get the number of mines around the cell
                 const minesAround = getMinesAround(i, j);
 
                 // Set the number
-                numbers[i][j] = minesAround;
+                numbers[j][i] = minesAround;
             }
         }
-        console.log("Numbers: ", numbers);
         setCellNumbers(numbers);
 
         // Set the cell display to empty
-        let display : string[] = Array(boardWidth * boardWidth).fill("");
+        let display : string[][] = Array(boardHeight).fill("").map(() => Array(boardWidth).fill(""));
         setCellDisplay(display);
 
         // All setup is done
@@ -221,7 +225,7 @@ export function Game(props: GameProps) {
     const getMinesAround = (x: number, y: number) => {
 
         // Check if the cell is a mine
-        if(minePlacement[x][y]){
+        if(minePlacement[y][x]){
             return -1;
         }
 
@@ -231,10 +235,10 @@ export function Game(props: GameProps) {
             for(let j = -1; j <= 1; j++){
 
                 // Check if the cell is within the board
-                if(x + i >= 0 && x + i < boardWidth && y + j >= 0 && y + j < boardWidth){
+                if(x + i >= 0 && x + i < boardWidth && y + j >= 0 && y + j < boardHeight){
 
                     // Check if the cell is a mine
-                    if(minePlacement[x + i][y + j]){
+                    if(minePlacement[y + j][x + i]){
                         mines++;
                     }
                 }
@@ -245,8 +249,8 @@ export function Game(props: GameProps) {
     }
 
 
-    // Actions
     const revealCell = (x: number, y: number) => {
+
 
         // Get the display
         let display = [...cellDisplay];
@@ -279,10 +283,10 @@ export function Game(props: GameProps) {
             for(let j = -1; j <= 1; j++){
 
                 // Check if the cell is within the board
-                if(x + i >= 0 && x + i < boardWidth && y + j >= 0 && y + j < boardWidth){
+                if(x + i >= 0 && x + i < boardWidth && y + j >= 0 && y + j < boardHeight){
 
                     // Check if the cell is a mine
-                    if(minePlacement[x + i][y + j]){
+                    if(minePlacement[y + j][x + i]){
                         mines = moveMine(x + i, y + j, start, mines);
                     }
                 }
@@ -297,13 +301,13 @@ export function Game(props: GameProps) {
 
         // Try to move the mine
         for(let i = start; i < boardWidth; i++){
-            for(let j = start; j < boardWidth; j++){
+            for(let j = start; j < boardHeight; j++){
 
                 // Check if the cell is not a mine
-                if(!mines[i][j]){
+                if(!mines[j][i]){
 
-                    mines[x][y] = false;
-                    mines[i][j] = true;
+                    mines[y][x] = false;
+                    mines[j][i] = true;
 
                     return mines;
                 }
@@ -321,10 +325,10 @@ export function Game(props: GameProps) {
     }, [cellNumbers]);
 
 
-    const tryQuickReveal = (x: number, y: number, display: string[]) : string[] => {
+    const tryQuickReveal = (x: number, y: number, display: string[][]) : string[][] => {
 
         // Get the cell contents
-        const cell = cellDisplay[x * boardWidth + y];
+        const cell = cellDisplay[y][x];
 
         // Check if the cell is empty
         if(cell === "") return display;
@@ -335,10 +339,10 @@ export function Game(props: GameProps) {
             for(let j = -1; j <= 1; j++){
 
                 // Check if the cell is within the board
-                if(x + i >= 0 && x + i < boardWidth && y + j >= 0 && y + j < boardWidth){
+                if(x + i >= 0 && x + i < boardWidth && y + j >= 0 && y + j < boardHeight){
 
                     // Check if the cell is flagged
-                    if(cellDisplay[(x + i) * boardWidth + y + j] === "F"){
+                    if(cellDisplay[y + j][x + i] === "F"){
                         flags++;
                     }
                 }
@@ -353,10 +357,10 @@ export function Game(props: GameProps) {
             for(let j = -1; j <= 1; j++){
 
                 // Check if the cell is within the board
-                if(x + i >= 0 && x + i < boardWidth && y + j >= 0 && y + j < boardWidth){
+                if(x + i >= 0 && x + i < boardWidth && y + j >= 0 && y + j < boardHeight){
 
                     // Check if the cell is not flagged
-                    if(cellDisplay[(x + i) * boardWidth + y + j] !== "F"){
+                    if(cellDisplay[y + j][x + i] !== "F"){
                         display = handleCellReveal(x + i, y + j, display);
                     }
                 }
@@ -366,7 +370,7 @@ export function Game(props: GameProps) {
         return display;
     }
 
-    const handleCellReveal = (x: number, y: number, display: string[], iter = 1) : string[] => {
+    const handleCellReveal = (x: number, y: number, display: string[][], iter = 1) : string[][] => {
 
         // Handle the first click
         if(firstClickPos.length === 0){
@@ -390,7 +394,7 @@ export function Game(props: GameProps) {
         if(cell?.classList.contains(styles.flagged)) return display;
 
         // Check if the cell is a mine
-        if(minePlacement[x][y]){
+        if(minePlacement[y][x]){
             return endGame(x, y, display);
         }
 
@@ -402,14 +406,14 @@ export function Game(props: GameProps) {
         }, 10 * iter);
 
         // Check if the cell is a number
-        if(cellNumbers[x][y] > 0){
+        if(cellNumbers[y][x] > 0){
 
             // Set the display
-            display[x * boardWidth + y] = cellNumbers[x][y].toString();
+            display[y][x] = cellNumbers[y][x].toString();
 
             // Set the number class
             cell?.classList.add(styles.number);
-            switch (cellNumbers[x][y]) {
+            switch (cellNumbers[y][x]) {
                 case 1:
                     cell?.classList.add(styles.one);
                     break;
@@ -449,13 +453,13 @@ export function Game(props: GameProps) {
         }
 
         // Check if the cell is empty
-        if(cellNumbers[x][y] === 0){
+        if(cellNumbers[y][x] === 0){
 
             for(let i = -1; i <= 1; i++) {
                 for (let j = -1; j <= 1; j++) {
 
                     // Check if the cell is within the board
-                    if (x + i >= 0 && x + i < boardWidth && y + j >= 0 && y + j < boardWidth) {
+                    if (x + i >= 0 && x + i < boardWidth && y + j >= 0 && y + j < boardHeight) {
 
                         // Reveal the cell
                         display = handleCellReveal(x + i, y + j, display, iter + 1);
@@ -484,7 +488,7 @@ export function Game(props: GameProps) {
 
         // Display the flag
         let display = [...cellDisplay];
-        display[x * boardWidth + y] = isFlagged ? "" : "F";
+        display[y][x] = isFlagged ? "" : "F";
         setCellDisplay(display);
 
         // Check if the cell is already flagged
@@ -510,13 +514,13 @@ export function Game(props: GameProps) {
         // Check if the player has won
         let win = true;
         for(let x = 0; x < boardWidth; x++){
-            for(let y = 0; y < boardWidth; y++){
+            for(let y = 0; y < boardHeight; y++){
 
                 // Get the cell
                 const cell = document.getElementById(`cell-${x}-${y}`);
 
                 // Check if the cell is a mine
-                if(minePlacement[x][y]){
+                if(minePlacement[y][x]){
 
                     // If the cell is not flagged
                     if(!cell?.classList.contains(styles.flagged)){
@@ -535,13 +539,13 @@ export function Game(props: GameProps) {
 
             // Reveal all cells
             for(let i = 0; i < boardWidth; i++){
-                for(let j = 0; j < boardWidth; j++){
+                for(let j = 0; j < boardHeight; j++){
 
                     // Get the cell
                     const cell = document.getElementById(`cell-${i}-${j}`);
 
                     // Check if the cell is a mine
-                    if(!minePlacement[i][j]){
+                    if(!minePlacement[j][i]){
                         revealCell(i, j);
                     }
                 }
@@ -553,26 +557,26 @@ export function Game(props: GameProps) {
         }
     }
 
-    const endGame = (x: number, y: number, display: string[]) : string[] => {
+    const endGame = (x: number, y: number, display: string[][]) : string[][] => {
 
         console.log("Game Over!");
         console.log("Mine at: ", x, y);
 
         // Reveal all cells
         for(let i = 0; i < boardWidth; i++){
-            for(let j = 0; j < boardWidth; j++){
+            for(let j = 0; j < boardHeight; j++){
 
                 // Get the cell
                 const cell = document.getElementById(`cell-${i}-${j}`);
 
                 // Check if the cell is a mine
-                if(minePlacement[i][j]){
+                if(minePlacement[j][i]){
                     // Add the mine class
                     cell?.classList.add(styles.mine);
                     cell?.classList.add(styles.revealed);
 
                     // Set the mine data
-                    display[i * boardWidth + j] = "M";
+                    display[j][i] = "M";
                 }
             }
         }
@@ -590,6 +594,9 @@ export function Game(props: GameProps) {
 
         // Set the final time
         setFinalTime(time);
+
+        // Clear the time
+        clearTimeout(pressTimeout.current as NodeJS.Timeout);
     }
 
     // Update the flags left
@@ -612,16 +619,8 @@ export function Game(props: GameProps) {
 
 
             {/* Top UI */}
-            <div className={styles.topBarContainer}>
-
-                {/* Border */}
-                <div className={styles.borderCornerTopLeft}/>
-                <div className={styles.borderTop} style={{width: cellWidth * boardWidth / 2}}/>
-                <div className={styles.borderCornerTopRight}/>
-
-                <div className={styles.borderRight} style={{height: cellWidth * boardWidth / 8, }}/>
-
-                <div className={styles.topBar} style={{width: cellWidth * boardWidth / 2, height: cellWidth * boardWidth / 8}}>
+            <Container top={true} left={true} right={true}>
+                <div className={styles.topBar} style={{width: cellWidth * boardWidth / (props.isMobile ? 1 : 2), height: cellWidth * boardHeight / 8}}>
                     <div className={styles.topBarLeft}>
                         <h1> Flags Left: </h1>
                         <span id={"flags-left"}></span>
@@ -631,28 +630,21 @@ export function Game(props: GameProps) {
                         <span id={"time"}></span>
                     </div>
                 </div>
+            </Container>
 
-                <div className={styles.borderLeft} style={{height: cellWidth * boardWidth / 8}}/>
-            </div>
-
-            <div className={styles.gameContainer}>
-
-                {/* Border */}
-                <div className={styles.borderCornerTopLeft}/>
-                <div className={styles.borderTop} style={{width: cellWidth * boardWidth}}/>
-                <div className={styles.borderCornerTopRight}/>
-
-                <div className={styles.borderRight} style={{height: cellWidth * boardWidth}}/>
-
-                {/* Game */}
+            <Container top={true} left={true} right={true} bottom={true}>
                 <div className={styles.mainGame} id={"game"}>
 
                     {/* Map the cells */}
-                    {cellDisplay.map((cell, index) => {
+                    {cellDisplay.map((col, y_index) => col.map((cell, x_index) => {
                         return (
                             <div
-                                key={index}
-                                id={`cell-${Math.floor(index / boardWidth)}-${index % boardWidth}`}
+
+                                // ID
+                                key={x_index * boardWidth + y_index}
+                                id={`cell-${x_index}-${y_index}`}
+
+                                // Styling
                                 style={
                                     {
                                         width: cellWidth,
@@ -661,10 +653,29 @@ export function Game(props: GameProps) {
                                     }
                                 }
                                 className={styles.cell}
-                                onClick={() => revealCell(Math.floor(index / boardWidth), index % boardWidth)}
+
+                                // PC Controls
+                                onClick={() => {
+                                    if(props.isMobile) return;
+
+                                    revealCell(x_index, y_index);
+                                }}
                                 onContextMenu={(e) => {
+                                    if(props.isMobile) return;
+
                                     e.preventDefault();
-                                    flagCell(Math.floor(index / boardWidth), index % boardWidth);
+                                    flagCell(x_index, y_index);
+                                }}
+
+                                // Touch Controls
+                                onTouchStart={() => {
+                                    pressTimeout.current = setTimeout(() => {
+                                        flagCell(x_index, y_index);
+                                    }, 150);
+                                }}
+                                onTouchEnd={() => {
+                                    clearTimeout(pressTimeout.current as NodeJS.Timeout);
+                                    revealCell(x_index, y_index);
                                 }}
                             >
 
@@ -674,7 +685,7 @@ export function Game(props: GameProps) {
 
                             </div>
                         )
-                    })}
+                    }))}
 
                     {/* Game Over Display */}
                     {gameOver !== 0 &&
@@ -686,14 +697,7 @@ export function Game(props: GameProps) {
                     }
 
                 </div>
-
-
-                {/* Border */}
-                <div className={styles.borderLeft} style={{height: cellWidth * boardWidth}}/>
-                <div className={styles.borderCornerBottomLeft}/>
-                <div className={styles.borderBottom} style={{width: cellWidth * boardWidth}}/>
-                <div className={styles.borderCornerBottomRight}/>
-            </div>
+            </Container>
 
         </>
     );

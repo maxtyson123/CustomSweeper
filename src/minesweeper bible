@@ -1,0 +1,17 @@
+-- Game Rules
+Number represets the mines around the cell (9x9 grid)
+Flag marks the cell as mine
+Clicking on a number auto reveals the cells around it if the number of flags around it matches the number (this can cause game over if the flags are not correct)
+If clicked on a mine, game over
+If Clicked on a mine on the first turn, the mine is moved to a different location (top right corner https://web.archive.org/web/20180618103640/http://www.techuser.net/mineclick.html)
+Mines are generated before the first click
+If all cells are revealed except the mines, the game is won
+If all mines are flagged, the game is won
+If the game is won, the time taken to win is recorded
+
+-- Patters
+2-1 rules is godly todo explain
+1-1 rule
+1-2-1 rule
+1 corer rule
+hole rules

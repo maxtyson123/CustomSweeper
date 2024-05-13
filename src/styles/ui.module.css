@@ -19,3 +19,136 @@
     font-size: 1.5em;
 }
 
+
+/* Side Navs */
+.sidenav {
+    height: 100vh;
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    color: var(--dark-color);
+    overflow-x: hidden;
+    transition: 0.5s;
+}
+
+
+.sideNavContent{
+    height: calc(100vh - 50px);
+    background: var(--primary-color);
+}
+
+.sidenav a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 25px;
+    display: block;
+    transition: 0.3s;
+    color: var(--dark-color);
+}
+
+.sidenav a:hover {
+    color: var(--secondary-color);
+}
+
+.sidenav .closebtn {
+    font-size: 36px;
+    text-align: center;
+}
+
+
+/* Borders */
+.borderCornerTopLeft{
+    width: 25px;
+    height: 25px;
+    clip-path: polygon(100% 100%, 0% 100%, 100% 0);
+    background: linear-gradient(to top left, var(--dark-color) 0, var(--dark-color) 13.3%, var(--primary-color) 13.3%, var(--primary-color) 36.6%, var(--secondary-color) 36.6%, var(--secondary-color) 100%) no-repeat
+}
+
+.borderTop{
+    height: 25px;
+    background: linear-gradient(to top, var(--dark-color) 0, var(--dark-color) 23.3%, var(--primary-color) 23.3%, var(--primary-color) 76.6%, var(--secondary-color) 76.6%, var(--secondary-color) 100%) no-repeat;
+}
+
+.borderCornerTopRight{
+    width: 25px;
+    height: 25px;
+    clip-path: polygon(0 100%, 0 0, 100% 100%);
+    position: relative;
+    background: linear-gradient(to top right, var(--dark-color) 0, var(--dark-color) 13.3%, var(--primary-color) 13.3%, var(--primary-color) 36.6%, var(--secondary-color) 36.6%, var(--secondary-color) 100%) no-repeat;
+}
+
+
+.borderBottom{
+    height: 25px;
+    background: linear-gradient(to top,  var(--dark-color) 5%, var(--dark-color) 23.3%, var(--primary-color) 23.3%, var(--primary-color) 76.6%, var(--secondary-color) 76.6%, var(--secondary-color) 100%) no-repeat;
+    margin-bottom: 25px;
+}
+
+.borderLeft{
+    width: 25px;
+    background: linear-gradient(to left, var(--dark-color) 0, var(--dark-color) 23.3%, var(--primary-color) 23.3%, var(--primary-color) 76.6%, var(--secondary-color) 76.6%, var(--secondary-color) 100%) no-repeat;
+    display: inline-block;
+}
+
+.borderRight{
+    width: 25px;
+    background: linear-gradient(to left, var(--dark-color) 0, var(--dark-color) 23.3%, var(--primary-color) 23.3%, var(--primary-color) 76.6%, var(--secondary-color) 76.6%, var(--secondary-color) 100%) no-repeat;
+    margin-right: 25px;
+    display: inline-block;
+}
+
+.borderCornerBottomLeft{
+    width: 25px;
+    height: 25px;
+    clip-path: polygon(0 0, 100% 0, 100% 100%);
+    background: linear-gradient(to bottom left, var(--dark-color) 0, var(--dark-color) 13.3%, var(--primary-color) 13.3%, var(--primary-color) 36.6%, var(--secondary-color) 36.6%, var(--secondary-color) 100%) no-repeat;
+}
+
+.borderCornerBottomRight{
+    width: 25px;
+    height: 25px;
+    clip-path: polygon(0 0, 0% 100%, 100% 0);
+    background: linear-gradient(to bottom right, var(--secondary-color) 0, var(--secondary-color) 13.3%, var(--primary-color) 13.3%, var(--primary-color) 36.6%, var(--dark-color) 36.6%, var(--dark-color) 100%) no-repeat;
+}
+
+.open{
+    width: 250px;
+}
+
+/* Slider */
+.sliderContainer{
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+    align-items: center;
+    justify-items: center;
+    border-bottom: 5px solid var(--secondary-color);
+    box-shadow: 0 5px 5px 0 rgba(0, 0, 0, 0.1);
+}
+
+.sliderOptions{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    width: 100%;
+    align-items: center;
+    justify-items: center;
+}
+
+
+.sliderOptions button{
+    font-size: 1.5em;
+    background: var(--dark-color);
+    border: none;
+    cursor: pointer;
+    color: var(--secondary-color);
+}
+
+
+
+/* Mobile */
+@media only screen and (max-width: 600px) {
+    .open{
+        width: 100vw;
+    }
+}
