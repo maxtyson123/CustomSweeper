@@ -144,11 +144,20 @@
     color: var(--secondary-color);
 }
 
+.zoom{
+    background: var(--dark-color);
+    display: block;
+}
 
 
 /* Mobile */
 @media only screen and (max-width: 600px) {
     .open{
         width: 100vw;
+    }
+
+    /* Remove the clip path from the corners */
+    .borderCornerTopLeft, .borderCornerTopRight, .borderCornerBottomLeft, .borderCornerBottomRight{
+        clip-path: none;
     }
 }

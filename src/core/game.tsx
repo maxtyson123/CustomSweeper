@@ -3,7 +3,7 @@ import styles from '../styles/game.module.css';
 import {useEffect, useRef} from "react";
 import {Flag, Mine} from "./svg";
 import {Theme} from "../index";
-import {Container} from "./ui";
+import {Container, Zoom} from "./ui";
 
 // TODO : Finidh Game
 //      - Add style customisation
@@ -483,6 +483,7 @@ export function Game(props: GameProps) {
         // Check if the cell is already revealed
         if(cell?.classList.contains(styles.revealed)) return;
 
+
         // Get the flag
         const isFlagged = cell?.classList.contains(styles.flagged);
 
@@ -614,13 +615,25 @@ export function Game(props: GameProps) {
     }, [time, timeSpan]);
 
 
+    // When the timeout is change set an auto clear
+    useEffect(() => {
+        setTimeout(() => {
+            clearTimeout(pressTimeout.current as NodeJS.Timeout);
+        }, 175);
+    }, [pressTimeout]);
+
     return (
         <>
 
 
             {/* Top UI */}
-            <Container top={true} left={true} right={true}>
-                <div className={styles.topBar} style={{width: cellWidth * boardWidth / (props.isMobile ? 1 : 2), height: cellWidth * boardHeight / 8}}>
+            <Container top={true} left={true} right={true} style={ props.isMobile ? {
+              justifySelf: "start",
+            } : {}}>
+                <div className={styles.topBar} style={{
+                    width: props.isMobile ? "calc(100vw - 50px)" : cellWidth * boardWidth / 2,
+                    height: props.isMobile ? "90px" : cellWidth * boardHeight / 8
+                }}>
                     <div className={styles.topBarLeft}>
                         <h1> Flags Left: </h1>
                         <span id={"flags-left"}></span>
@@ -632,8 +645,15 @@ export function Game(props: GameProps) {
                 </div>
             </Container>
 
-            <Container top={true} left={true} right={true} bottom={true}>
-                <div className={styles.mainGame} id={"game"}>
+            <Container top={true} left={true} right={true} bottom={true} style={props.isMobile ? {
+                width: "100vw",
+                height: "calc(100vh - 90px - 25px)",
+                overflow: "hidden",
+                justifySelf: "start",
+            } : {}}
+            >
+                <Zoom boundHeight={767} boundWidth={380}>
+                    <div className={styles.mainGame} id={"game"}>
 
                     {/* Map the cells */}
                     {cellDisplay.map((col, y_index) => col.map((cell, x_index) => {
@@ -697,6 +717,7 @@ export function Game(props: GameProps) {
                     }
 
                 </div>
+                </Zoom>
             </Container>
 
         </>

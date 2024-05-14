@@ -1,6 +1,6 @@
 import * as React from 'react';
 import styles from '../styles/ui.module.css';
-import {useEffect} from "react";
+import {useEffect, useRef} from "react";
 
 
 interface TopUIProps {
@@ -28,6 +28,7 @@ export function TopUI(props: TopUIProps) {
 
 interface ContainerProps {
     children: React.ReactNode;
+    style?: React.CSSProperties;
     left?: boolean;
     right?: boolean;
     top?: boolean;
@@ -36,13 +37,15 @@ interface ContainerProps {
 
 export function Container(props: ContainerProps) {
 
+    const baseStyle: React.CSSProperties = {
+        display: 'grid',
+        gridTemplateColumns: (props.left ? "25px " : "") + "1fr " + (props.right ? "25px" : ""),
+        gridTemplateRows: (props.top ? "25px " : "") + "1fr " + (props.bottom ? "25px" : ""),
+    }
+
     return(
         <>
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: (props.left ? "25px " : "") + "1fr " + (props.right ? "25px" : ""),
-                gridTemplateRows: (props.top ? "25px " : "") + "1fr " + (props.bottom ? "25px" : ""),
-            }}>
+            <div style={{...baseStyle, ...props.style}} className={styles.borderContainer}>
                 {/* Top */}
                 {props.top && props.left && <div className={styles.borderCornerTopLeft}/>}
                 {props.top && <div className={styles.borderTop}/>}
@@ -175,6 +178,49 @@ export function SliderInputNumber(props: SliderInputNumberProps) {
                 <button onClick={prev}>&lt;</button>
                 <h3>{props.value}</h3>
                 <button onClick={next}>&gt;</button>
+            </div>
+        </div>
+    )
+}
+
+interface ZoomProps {
+    children: React.ReactNode;
+    boundWidth?: number;
+    boundHeight?: number;
+}
+export function Zoom(props: ZoomProps) {
+
+    const [scale, setScale] = React.useState(1);
+    const childrenRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+
+        // Set the scale based on the width of the children
+        const child = document.getElementById("game")
+        if(!child) return;
+
+        const width = child.offsetWidth;
+        const height = child.offsetHeight;
+
+        console.log(width, height);
+
+        const scaleWidth = (props.boundWidth ? props.boundWidth : 1) / width;
+        const scaleHeight = (props.boundHeight ? props.boundHeight : 1) / height;
+
+        // See which one is smaller
+        setScale(Math.min(scaleWidth, scaleHeight));
+
+    });
+
+    return (
+        <div className={styles.zoom} style={{width: props.boundWidth, height: props.boundHeight}}>
+            <div style={{
+                transform: `scale(${scale})`,
+                position: 'relative',
+                transformOrigin: '0 0',
+                top: '25%',
+            }} ref={childrenRef}>
+                {props.children}
             </div>
         </div>
     )
